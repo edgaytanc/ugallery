@@ -1,7 +1,8 @@
 
 package ugallery.control;
+import java.io.Serializable;
 
-public class NodoUsuario {
+public class NodoUsuario implements Serializable{
     private Usuario usuario;
     private NodoUsuario siguiente;
 

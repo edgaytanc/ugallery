@@ -4,9 +4,13 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -86,8 +90,15 @@ public class BibliotecaForm extends javax.swing.JFrame {
     
     // Método para actualizar los botones y el índice de la imagen actual
     private void actualizarBotones() {
-        btnAtras.setEnabled(imagenActual > 0);
-        btnAdelante.setEnabled(imagenActual < categoriaSeleccionada.getImagenes().size() - 1);
+        if(categoriaSeleccionada != null){
+            btnAtras.setEnabled(imagenActual > 0);
+            btnAdelante.setEnabled(imagenActual < categoriaSeleccionada.getImagenes().size() - 1);
+        }
+        else{
+            btnAdelante.setEnabled(false);
+            btnAtras.setEnabled(false);
+        }
+        
     }
 
 
@@ -137,6 +148,11 @@ public class BibliotecaForm extends javax.swing.JFrame {
         });
 
         btnEliminarImagen.setText("Eliminar Imagen");
+        btnEliminarImagen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarImagenActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout nortePanelLayout = new javax.swing.GroupLayout(nortePanel);
         nortePanel.setLayout(nortePanelLayout);
@@ -203,6 +219,11 @@ public class BibliotecaForm extends javax.swing.JFrame {
         });
 
         btnEliminarCategoria.setText("Eliminar Categoria");
+        btnEliminarCategoria.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarCategoriaActionPerformed(evt);
+            }
+        });
 
         txtSalir.setText("Salir");
         txtSalir.addActionListener(new java.awt.event.ActionListener() {
@@ -370,6 +391,79 @@ public class BibliotecaForm extends javax.swing.JFrame {
         cargarImagen(imagenActual);
         actualizarBotones();
     }//GEN-LAST:event_btnAtrasActionPerformed
+
+    private void btnEliminarCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarCategoriaActionPerformed
+        if (categoriaSeleccionada != null) {
+            // Paso 1: Obtén la categoría seleccionada
+            String nombreCategoria = categoriaSeleccionada.getNombre();
+
+            // Paso 2: Elimina la categoría seleccionada del JTextArea
+            String text = categoriasArea.getText();
+            text = text.replace(nombreCategoria + "\n", "");
+            categoriasArea.setText(text);
+            categoriasArea.repaint();
+            
+            System.out.println(text);
+
+
+            // Paso 3: Elimina la categoría seleccionada del objeto 'user'
+            user.eliminarCategoria(categoriaSeleccionada);
+
+            // Paso 4: Elimina la carpeta y todas las imágenes que tenga dentro
+            Path directorioCategoria = categoriaSeleccionada.getDirectorio();
+            try {
+                Files.walkFileTree(directorioCategoria, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            // Limpia la selección de categoría y la vista de imagen
+            categoriaSeleccionada = null;
+            lblImangen.setIcon(null);
+            actualizarBotones();
+            actualizarCategoriasArea();
+        }
+    }//GEN-LAST:event_btnEliminarCategoriaActionPerformed
+
+    private void btnEliminarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarImagenActionPerformed
+        if (categoriaSeleccionada != null && !categoriaSeleccionada.getImagenes().isEmpty()) {
+            // Paso 1: Elimina el archivo de imagen que está cargado en el JLabel lblImagen
+            Path imagenActualPath = categoriaSeleccionada.getImagenes().get(imagenActual);
+            try {
+                Files.delete(imagenActualPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error al eliminar la imagen", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Paso 2: Actualizar la lista de Path
+            categoriaSeleccionada.eliminarImagen(imagenActualPath.toString());
+
+            // Paso 3: Cargar en el JLabel lblImagen la siguiente imagen de la lista
+            if (categoriaSeleccionada.getImagenes().size() > 0) {
+                imagenActual = (imagenActual >= categoriaSeleccionada.getImagenes().size()) ? 0 : imagenActual;
+                cargarImagen(imagenActual);
+            } else {
+                lblImangen.setIcon(null);
+            }
+
+            // Actualiza los botones según las imágenes restantes
+            actualizarBotones();
+        }
+    }//GEN-LAST:event_btnEliminarImagenActionPerformed
 
     /**
      * @param args the command line arguments

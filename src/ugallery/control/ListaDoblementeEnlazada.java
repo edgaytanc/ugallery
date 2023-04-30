@@ -1,8 +1,7 @@
-
 package ugallery.control;
+import java.io.Serializable;
 
-
-public class ListaDoblementeEnlazada {
+public class ListaDoblementeEnlazada implements Serializable{
     private NodoImagen cabeza;
     private NodoImagen cola;
     private NodoImagen nodoActual;

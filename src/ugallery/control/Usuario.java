@@ -8,11 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 
-public class Usuario {
+public class Usuario implements Serializable {
     private String nombre;
     private ArrayList<Categoria> categorias;
-    private Path directorio;
+    private transient Path directorio;
+    private String directorioString;
 
     public Usuario(String nombre) {
         this.nombre = nombre;
@@ -52,12 +55,19 @@ public class Usuario {
     public void crearCarpetaUsuario() {
         try {
             directorio = Paths.get(nombre);
+            directorioString = directorio.toString();
             if (!Files.exists(directorio)) {
                 Files.createDirectory(directorio);
             }
         } catch (IOException e) {
             System.err.println("Error al crear la carpeta del usuario: " + e.getMessage());
         }
+    }
+    
+    //actualiza la variable directorio despues de la deserializacion
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        directorio = Paths.get(directorioString);
     }
     
     public Path getDirectorio() {

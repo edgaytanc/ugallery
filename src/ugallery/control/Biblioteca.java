@@ -1,10 +1,8 @@
-
 package ugallery.control;
 
+import java.io.Serializable;
 
-import java.util.LinkedList;
-
-public class Biblioteca {
+public class Biblioteca implements Serializable{
     private ListaUsuarios usuarios;
 
     public Biblioteca() {

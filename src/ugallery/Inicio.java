@@ -1,6 +1,12 @@
 
 package ugallery;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import javax.swing.JOptionPane;
 import ugallery.control.Biblioteca;
 import ugallery.view.BibliotecaForm;
@@ -8,11 +14,36 @@ import ugallery.view.BibliotecaForm;
 
 public class Inicio extends javax.swing.JFrame {
     Biblioteca biblioteca =  new Biblioteca();
+    private static final String BIBLIOTECA_DATA_FILE = "biblioteca_data.bin";
    
     public Inicio() {
         initComponents();
         setLocationRelativeTo(null);
         this.setSize(600, 400);
+        
+        biblioteca = cargarBiblioteca();
+    }
+    
+    private static void guardarBiblioteca(Biblioteca biblioteca) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(BIBLIOTECA_DATA_FILE))) {
+            oos.writeObject(biblioteca);
+        } catch (IOException e) {
+            System.err.println("Error al guardar la biblioteca: " + e.getMessage());
+        }
+    }
+    
+    private static Biblioteca cargarBiblioteca() {
+        File bibliotecaDataFile = new File(BIBLIOTECA_DATA_FILE);
+        if (bibliotecaDataFile.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(bibliotecaDataFile))) {
+                return (Biblioteca) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                System.err.println("Error al cargar la biblioteca: " + e.getMessage());
+            }
+        }
+
+        // Si no hay datos guardados, crea una nueva instancia de Biblioteca
+        return new Biblioteca();
     }
 
     
@@ -31,6 +62,11 @@ public class Inicio extends javax.swing.JFrame {
         setTitle("Ugallery");
         setResizable(false);
         setSize(new java.awt.Dimension(600, 400));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         lblTitulo.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lblTitulo.setText("MENU");
@@ -99,6 +135,11 @@ public class Inicio extends javax.swing.JFrame {
                 }
                 
     }//GEN-LAST:event_btnBibliotecaActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        guardarBiblioteca(biblioteca);
+                System.exit(0);
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
