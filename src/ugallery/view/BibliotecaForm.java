@@ -1,17 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package ugallery.view;
 
-import java.awt.List;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Utilities;
 import ugallery.control.Biblioteca;
 import ugallery.control.Categoria;
 import ugallery.control.Usuario;
@@ -25,6 +28,8 @@ public class BibliotecaForm extends javax.swing.JFrame {
     private String usuario;
     private Biblioteca biblioteca;
     private Usuario user;
+    private int imagenActual = 0;
+    private Categoria categoriaSeleccionada;
     /**
      * Creates new form Biblioteca
      */
@@ -47,6 +52,42 @@ public class BibliotecaForm extends javax.swing.JFrame {
         ArrayList<String> categorias = user.getListaCategorias();
         String categoriasTexto = String.join("\n", categorias);
         categoriasArea.setText(categoriasTexto);
+    }
+    
+    // Método para cargar imágenes en el JLabel
+    private void cargarImagen(int indice) {
+        if (categoriaSeleccionada != null && categoriaSeleccionada.getImagenes().size() > 0) {
+            Path pathImagen = categoriaSeleccionada.getImagenes().get(indice);
+            File archivoImagen = pathImagen.toFile();
+            try {
+                BufferedImage imagen = ImageIO.read(archivoImagen);
+                ImageIcon icono = new ImageIcon(escalarImagen(imagen, lblImangen.getWidth(), lblImangen.getHeight()));
+                lblImangen.setIcon(icono);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            lblImangen.setIcon(null);
+        }
+    }
+    
+    private Image escalarImagen(BufferedImage imagen, int anchoMax, int altoMax) {
+        double relacionAspecto = (double) imagen.getWidth() / (double) imagen.getHeight();
+        int anchoNuevo = anchoMax;
+        int altoNuevo = (int) (anchoNuevo / relacionAspecto);
+
+        if (altoNuevo > altoMax) {
+            altoNuevo = altoMax;
+            anchoNuevo = (int) (altoNuevo * relacionAspecto);
+        }
+
+        return imagen.getScaledInstance(anchoNuevo, altoNuevo, Image.SCALE_SMOOTH);
+    }
+    
+    // Método para actualizar los botones y el índice de la imagen actual
+    private void actualizarBotones() {
+        btnAtras.setEnabled(imagenActual > 0);
+        btnAdelante.setEnabled(imagenActual < categoriaSeleccionada.getImagenes().size() - 1);
     }
 
 
@@ -72,9 +113,9 @@ public class BibliotecaForm extends javax.swing.JFrame {
         btnEliminarCategoria = new javax.swing.JButton();
         txtSalir = new javax.swing.JButton();
         centroPanel = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        btnAtras = new javax.swing.JButton();
+        lblImangen = new javax.swing.JLabel();
+        btnAdelante = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Biblioteca");
@@ -128,6 +169,11 @@ public class BibliotecaForm extends javax.swing.JFrame {
 
         categoriasArea.setColumns(20);
         categoriasArea.setRows(5);
+        categoriasArea.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                categoriasAreaMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(categoriasArea);
 
         javax.swing.GroupLayout estePanelLayout = new javax.swing.GroupLayout(estePanel);
@@ -191,11 +237,21 @@ public class BibliotecaForm extends javax.swing.JFrame {
 
         getContentPane().add(surPanel, java.awt.BorderLayout.PAGE_END);
 
-        jButton1.setText("<");
+        btnAtras.setText("<");
+        btnAtras.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAtrasActionPerformed(evt);
+            }
+        });
 
-        jLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        lblImangen.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        jButton2.setText(">");
+        btnAdelante.setText(">");
+        btnAdelante.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAdelanteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout centroPanelLayout = new javax.swing.GroupLayout(centroPanel);
         centroPanel.setLayout(centroPanelLayout);
@@ -203,11 +259,11 @@ public class BibliotecaForm extends javax.swing.JFrame {
             centroPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(centroPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addComponent(btnAtras)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+                .addComponent(lblImangen, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
+                .addComponent(btnAdelante)
                 .addContainerGap())
         );
         centroPanelLayout.setVerticalGroup(
@@ -215,9 +271,9 @@ public class BibliotecaForm extends javax.swing.JFrame {
             .addGroup(centroPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(centroPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnAdelante, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
+                    .addComponent(btnAtras, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblImangen, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -279,6 +335,42 @@ public class BibliotecaForm extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_txtSalirActionPerformed
 
+    private void categoriasAreaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_categoriasAreaMouseClicked
+        if (evt.getClickCount() == 1) {
+            JTextArea target = (JTextArea) evt.getSource();
+            int selectedIndex = target.viewToModel(evt.getPoint());
+
+            try {
+                int start = Utilities.getRowStart(target, selectedIndex);
+                int end = Utilities.getRowEnd(target, selectedIndex);
+
+                target.setSelectionStart(start);
+                target.setSelectionEnd(end);
+
+                String nombreCategoria = target.getText().substring(start, end).trim();
+                categoriaSeleccionada = user.getCategoriaPorNombre(nombreCategoria);
+                imagenActual = 0;
+                cargarImagen(imagenActual);
+                actualizarBotones();
+
+            } catch (BadLocationException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_categoriasAreaMouseClicked
+
+    private void btnAdelanteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdelanteActionPerformed
+        imagenActual++;
+        cargarImagen(imagenActual);
+        actualizarBotones();
+    }//GEN-LAST:event_btnAdelanteActionPerformed
+
+    private void btnAtrasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtrasActionPerformed
+        imagenActual--;
+        cargarImagen(imagenActual);
+        actualizarBotones();
+    }//GEN-LAST:event_btnAtrasActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -316,18 +408,18 @@ public class BibliotecaForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAdelante;
     private javax.swing.JButton btnAgregarCategoria;
     private javax.swing.JButton btnAgregarImagen;
+    private javax.swing.JButton btnAtras;
     private javax.swing.JButton btnEliminarCategoria;
     private javax.swing.JButton btnEliminarImagen;
     private javax.swing.JTextArea categoriasArea;
     private javax.swing.JPanel centroPanel;
     private javax.swing.JPanel estePanel;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lblCategorias;
+    private javax.swing.JLabel lblImangen;
     private javax.swing.JLabel lblUsuario;
     private javax.swing.JPanel nortePanel;
     private javax.swing.JPanel surPanel;

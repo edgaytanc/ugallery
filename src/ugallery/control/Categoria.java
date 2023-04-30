@@ -1,10 +1,11 @@
 package ugallery.control;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.io.File;
+import java.util.ArrayList;
 
 public class Categoria {
     private String nombre;
@@ -56,6 +57,24 @@ public class Categoria {
             System.err.println("Error al crear la carpeta del usuario: " + e.getMessage());
         }
     }
+    
+    public ArrayList<Path> getImagenes() {
+        ArrayList<Path> imagenes = new ArrayList<>();
+
+        try {
+            Files.newDirectoryStream(directorio, path -> {
+                String fileName = path.getFileName().toString().toLowerCase();
+                return fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")
+                    || fileName.endsWith(".png") || fileName.endsWith(".gif")
+                    || fileName.endsWith(".bmp");
+            }).forEach(imagenes::add);
+        } catch (IOException e) {
+            System.err.println("Error al obtener las imágenes: " + e.getMessage());
+        }
+
+        return imagenes;
+    }
+
 }
 
 

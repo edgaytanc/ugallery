@@ -67,6 +67,16 @@ public class Usuario {
     public ArrayList<Categoria> getCategorias() {
         return categorias;
     }
+    
+    public Categoria getCategoriaPorNombre(String nombreCategoria) {
+        for (Categoria categoria : categorias) {
+            if (categoria.getNombre().equals(nombreCategoria)) {
+                return categoria;
+            }
+        }
+        return null;
+    }
+
 
 
 }
