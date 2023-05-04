@@ -10,6 +10,7 @@ import java.io.ObjectOutputStream;
 import javax.swing.JOptionPane;
 import ugallery.control.Biblioteca;
 import ugallery.view.BibliotecaForm;
+import ugallery.view.EditorForm;
 
 
 public class Inicio extends javax.swing.JFrame {
@@ -81,6 +82,11 @@ public class Inicio extends javax.swing.JFrame {
         });
 
         btnEditor.setText("Ingresar a Editor");
+        btnEditor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditorActionPerformed(evt);
+            }
+        });
 
         btnConvertidor.setText("Ingresar a Convertidor");
 
@@ -140,6 +146,17 @@ public class Inicio extends javax.swing.JFrame {
         guardarBiblioteca(biblioteca);
                 System.exit(0);
     }//GEN-LAST:event_formWindowClosing
+
+    private void btnEditorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditorActionPerformed
+        String nombreUsuario = txtUsuario.getText().trim();
+        if (nombreUsuario.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Por favor, ingrese un nombre de usuario.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            biblioteca.agregarUsuarioSiNoExiste(nombreUsuario);
+            EditorForm editor = new EditorForm(nombreUsuario,biblioteca);
+            editor.setVisible(true);
+        }
+    }//GEN-LAST:event_btnEditorActionPerformed
 
     /**
      * @param args the command line arguments

@@ -302,7 +302,9 @@ public class BibliotecaForm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    /*
+    Evento que se ejecuta cuando se presiona el boton agregar imagen
+    */
     private void btnAgregarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarImagenActionPerformed
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Archivos de imagen", "jpg", "png", "gif", "bmp", "jpeg");
@@ -355,7 +357,9 @@ public class BibliotecaForm extends javax.swing.JFrame {
     private void txtSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSalirActionPerformed
         this.setVisible(false);
     }//GEN-LAST:event_txtSalirActionPerformed
-
+    /*
+    Evento que selecciona la categoria en el categoriasArea
+    */
     private void categoriasAreaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_categoriasAreaMouseClicked
         if (evt.getClickCount() == 1) {
             JTextArea target = (JTextArea) evt.getSource();
