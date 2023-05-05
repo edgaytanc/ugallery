@@ -40,5 +40,9 @@ public class Biblioteca implements Serializable{
             usuarios.agregarUsuario(usuario);
         }
     }
+    
+    public ListaUsuarios getUsuarios(){
+        return usuarios;
+    }
 }
 

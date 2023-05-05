@@ -139,7 +139,7 @@ public class EditorForm extends javax.swing.JFrame {
             // En caso de que no haya ningún botón seleccionado
             JOptionPane.showMessageDialog(this, "Por favor, seleccione una opción", "Error", JOptionPane.ERROR_MESSAGE);
         }
-}
+    }
 
 
     @SuppressWarnings("unchecked")
